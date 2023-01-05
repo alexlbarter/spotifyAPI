@@ -14,9 +14,25 @@ auth_response = requests.post("https://accounts.spotify.com/api/token", {
 })
 
 access_token = auth_response.json()["access_token"]
+headers = {"Authorization": f"Bearer {access_token}"}
 
-header = {"Authorization": f"Bearer {access_token}"}
-response = requests.get("https://api.spotify.com/v1/tracks/1eprzC29mwUQqcVj0eILdx", headers=header)
 
-for artist in response.json()["artists"]:
-    print(artist["name"])
+search_term = input("Enter search term: ")
+
+params = {"type": "track", "limit": 5, "q": search_term}
+
+response = requests.get(f"https://api.spotify.com/v1/search", headers=headers, params=params)
+response_json = response.json()
+
+count = 1
+for item in response_json["tracks"]["items"]:
+    track_name = item["name"]
+    track_artist_names = []
+    for artist in item["artists"]:
+        track_artist_names.append(artist["name"])
+
+    artist_str = ", ".join(track_artist_names)
+    print(f"{count}) {track_name} - {artist_str}")
+
+    count += 1
+
