@@ -1,5 +1,6 @@
 import os
 import requests
+import spot_py
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -26,12 +27,8 @@ response_json = response.json()
 
 count = 1
 for item in response_json["tracks"]["items"]:
-    track_name = item["name"]
-    track_artist_names = []
-    for artist in item["artists"]:
-        track_artist_names.append(artist["name"])
-
-    artist_str = ", ".join(track_artist_names)
+    track_name = spot_py.get_track_name(item)
+    artist_str = ", ".join(spot_py.get_artists(item))
     print(f"{count}) {track_name} - {artist_str}")
 
     count += 1
