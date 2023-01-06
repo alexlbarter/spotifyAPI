@@ -19,16 +19,23 @@ headers = {"Authorization": f"Bearer {access_token}"}
 
 
 search_term = input("Enter search term: ")
+search_type = input("Search type: ")
 
-params = {"type": "track", "limit": 5, "q": search_term}
+params = {"type": search_type, "limit": 5, "q": search_term}
 
 response = requests.get(f"https://api.spotify.com/v1/search", headers=headers, params=params)
 response_json = response.json()
 
 count = 1
-for item in response_json["tracks"]["items"]:
-    track = spot_py.Track(item)
-    print(f"{count}) {track.track_name} - {', '.join(track.artists)}")
-
-    count += 1
+for item in response_json[search_type + "s"]["items"]:
+    if search_type == "track":
+        track = spot_py.Track(item)
+        print(f"{count}) {track.name} - by {', '.join(track.artists)}", end="")
+        if track.explicit:
+            print(" [E]", end="")
+        print(f" ({track.minutes}:{track.seconds:02})")
+        count += 1
+    elif search_type == "album":
+        album = spot_py.Album(item)
+        print(f"{album.name}, {len(album)} tracks")
 
