@@ -10,9 +10,6 @@ class Track:
     @property
     def artists(self) -> list:
         """ Returns a list of all artists of the track """
-        artist_list = []
-        for artist in self.raw_json["artists"]:
-            artist_list.append(artist["name"])
-        return artist_list
+        return [artist["name"] for artist in self.raw_json["artists"]]
 
 
