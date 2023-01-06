@@ -8,23 +8,27 @@ load_dotenv()
 client_id = os.getenv("CLIENT_ID")
 client_secret = os.getenv("CLIENT_SECRET")
 
-auth_response = requests.post("https://accounts.spotify.com/api/token", {
-    "grant_type": "client_credentials",
-    "client_id": client_id,
-    "client_secret": client_secret
-})
+# auth_response = requests.post("https://accounts.spotify.com/api/token", {
+#     "grant_type": "client_credentials",
+#     "client_id": client_id,
+#     "client_secret": client_secret
+# })
+#
+# access_token = auth_response.json()["access_token"]
+# headers = {"Authorization": f"Bearer {access_token}"}
 
-access_token = auth_response.json()["access_token"]
-headers = {"Authorization": f"Bearer {access_token}"}
+connection = spot_py.SpotifyConnection(client_id, client_secret)
 
 
 search_term = input("Enter search term: ")
 search_type = input("Search type: ")
 
-params = {"type": search_type, "limit": 5, "q": search_term}
+# params = {"type": search_type, "limit": 5, "q": search_term}
+#
+# response = requests.get(f"https://api.spotify.com/v1/search", headers=headers, params=params)
+# response_json = response.json()
 
-response = requests.get(f"https://api.spotify.com/v1/search", headers=headers, params=params)
-response_json = response.json()
+response_json = connection.get_search(search_term, [search_type])
 
 count = 1
 for item in response_json[search_type + "s"]["items"]:

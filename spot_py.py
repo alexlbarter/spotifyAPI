@@ -1,3 +1,35 @@
+import requests
+
+
+class SpotifyConnection:
+    def __init__(self, client_id: str, client_secret: str):
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.access_token = self.__get_access_token()
+        self.headers = {"Authorization": f"Bearer {self.access_token}"}
+        self.api_endpoint = "https://api.spotify.com/v1"
+
+    def __get_access_token(self) -> str:
+        auth_response = requests.post("https://accounts.spotify.com/api/token", {
+            "grant_type": "client_credentials",
+            "client_id": self.client_id,
+            "client_secret": self.client_secret
+        })
+        return auth_response.json()["access_token"]
+
+    def get_search(self, query: str, search_types: list[str], limit=10) -> dict:
+        params = {"q": query, "type": ",".join(search_types), "limit": limit}
+        return requests.get(f"{self.api_endpoint}/search", headers=self.headers, params=params).json()
+
+    def get_tracks(self, track_ids: list[str]) -> dict:
+        id_str = ",".join(track_ids)
+        return requests.get(f"{self.api_endpoint}/tracks", headers=self.headers, params={"ids": id_str}).json()
+
+    def get_artists(self, artist_ids: list[str]) -> dict:
+        id_str = ",".join(artist_ids)
+        return requests.get(f"{self.api_endpoint}/artists", headers=self.headers, params={"ids": id_str}).json()
+
+
 class SpotifyObject:
     def __init__(self, raw_json: dict, obj_type: str):
         try:
@@ -11,6 +43,7 @@ class SpotifyObject:
 
 class Track(SpotifyObject):
     """ Spotify track object """
+
     def __init__(self, raw_json: dict):
         super().__init__(raw_json, "track")
 
@@ -47,6 +80,7 @@ class Track(SpotifyObject):
 
 class Album(SpotifyObject):
     """ Spotify album object """
+
     def __init__(self, raw_json: dict):
         super().__init__(raw_json, "album")
 
