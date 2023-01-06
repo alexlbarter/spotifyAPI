@@ -27,9 +27,8 @@ response_json = response.json()
 
 count = 1
 for item in response_json["tracks"]["items"]:
-    track_name = spot_py.get_track_name(item)
-    artist_str = ", ".join(spot_py.get_artists(item))
-    print(f"{count}) {track_name} - {artist_str}")
+    track = spot_py.Track(item)
+    print(f"{count}) {track.track_name} - {', '.join(track.artists)}")
 
     count += 1
 
