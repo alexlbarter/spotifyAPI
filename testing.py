@@ -21,25 +21,23 @@ connection = spot_py.SpotifyConnection(client_id, client_secret)
 
 
 search_term = input("Enter search term: ")
-search_type = input("Search type: ")
+# search_type = input("Search type: ")
 
 # params = {"type": search_type, "limit": 5, "q": search_term}
 #
 # response = requests.get(f"https://api.spotify.com/v1/search", headers=headers, params=params)
 # response_json = response.json()
 
-response_json = connection.get_search(search_term, [search_type])
+response = connection.get_search(search_term, ["track", "album", "artist"])
 
 count = 1
-for item in response_json[search_type + "s"]["items"]:
-    if search_type == "track":
-        track = spot_py.Track(item)
-        print(f"{count}) {track.name} - by {', '.join(track.artists)}", end="")
-        if track.explicit:
+for item in response:
+    if item.type == "track":
+        print(f"{count}) {item.name} - by {', '.join(item.artists)}", end="")
+        if item.explicit:
             print(" [E]", end="")
-        print(f" ({track.minutes}:{track.seconds:02})")
+        print(f" ({item.minutes}:{item.seconds:02})")
         count += 1
-    elif search_type == "album":
-        album = spot_py.Album(item)
-        print(f"{album.name}, {len(album)} tracks")
+    elif item.type == "album":
+        print(f"{item.name}, {len(item)} tracks")
 
