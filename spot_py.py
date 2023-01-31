@@ -2,6 +2,7 @@ import requests
 
 
 class SpotifyObject:
+    """ Base Spotify object """
     def __init__(self, raw_json: dict, obj_type: str):
         try:
             if raw_json["type"] == obj_type:
@@ -35,6 +36,7 @@ class Track(SpotifyObject):
 
     @property
     def explicit(self) -> bool:
+        """ Returns True if song is explicit, else False """
         return self.raw_json["explicit"]
 
     @property
@@ -57,20 +59,44 @@ class Album(SpotifyObject):
         super().__init__(raw_json, "album")
 
     def __len__(self) -> int:
+        """ Returns total number of tracks on the album """
         return self.raw_json["total_tracks"]
 
     @property
     def name(self) -> str:
+        """ Returns name of album """
         return self.raw_json["name"]
 
     @property
     def release_date(self) -> str:
+        """ Returns release date of album """
         return self.raw_json["release_date"]
+
+    @property
+    def artists(self) -> list:
+        """ Returns list of all artists on the album """
+        return [artist["name"] for artist in self.raw_json["artists"]]
+
+    @property
+    def album_type(self) -> str:
+        """ Returns album type i.e. single, album, compilation etc. """
+        return self.raw_json["album_type"]
+
+    @property
+    def tracks(self) -> list[Track]:
+        """ Returns track objects for all tracks on the album """
+        return [Track(item) for item in self.raw_json["tracks"]["items"]]
 
 
 class Artist(SpotifyObject):
+    """ Spotify artist object """
     def __init__(self, raw_json: dict):
         super().__init__(raw_json, "artist")
+
+    @property
+    def name(self) -> str:
+        """ Returns name of artist """
+        return self.raw_json["name"]
 
 
 class SpotifyConnection:
@@ -116,9 +142,18 @@ class SpotifyConnection:
     def get_albums(self, album_ids: list[str]) -> list[Album]:
         params = {"ids": ",".join(album_ids)}
         response = self.__send_request("albums", params)
-        return [Album(item) for item in response["albums"]["items"]]
+        return [Album(item) for item in response["albums"]]
 
     def get_artists(self, artist_ids: list[str]) -> list[Artist]:
         params = {"ids": ",".join(artist_ids)}
         response = self.__send_request("artists", params)
         return [Artist(item) for item in response["artists"]["items"]]
+
+
+if __name__ == "__main__":
+    connection = SpotifyConnection("b74b4a44de9149598ccd5610e0355aa8", "8ea689841b6e4c8e8790f5ac116ed1bd")
+    album_list = connection.get_albums(["1amYhlukNF8WdaQC3gKkgL"])
+    for track in album_list[0].tracks:
+        if track.explicit:
+            print("[E] ", end="")
+        print(f"{track.name} - by {', '.join(track.artists)} ({track.minutes}:{track.seconds:02})")
