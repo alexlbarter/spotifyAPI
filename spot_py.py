@@ -1,4 +1,7 @@
+import os
+
 import requests
+from dotenv import load_dotenv
 
 
 class SpotifyObject:
@@ -151,7 +154,8 @@ class SpotifyConnection:
 
 
 if __name__ == "__main__":
-    connection = SpotifyConnection("b74b4a44de9149598ccd5610e0355aa8", "8ea689841b6e4c8e8790f5ac116ed1bd")
+    load_dotenv()
+    connection = SpotifyConnection(os.getenv("CLIENT_ID"), os.getenv("CLIENT_SECRET"))
     album_list = connection.get_albums(["1amYhlukNF8WdaQC3gKkgL"])
     for track in album_list[0].tracks:
         if track.explicit:
