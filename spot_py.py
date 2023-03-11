@@ -54,6 +54,17 @@ class Track(SpotifyObject):
             i.e. mm:SS """
         return len(self) // 1000 - self.minutes * 60
 
+    @property
+    def available_markets(self) -> list:
+        """ Returns list of markets where track is available
+            Represented by ISO 3166-1 alpha-2 codes """
+        return self.raw_json["available_markets"]
+
+    @property
+    def popularity(self) -> int:
+        """ Returns the popularity score of the track, from 0-100 """
+        return int(self.raw_json["popularity"])
+
 
 class Album(SpotifyObject):
     """ Spotify album object """
@@ -90,6 +101,27 @@ class Album(SpotifyObject):
         """ Returns track objects for all tracks on the album """
         return [Track(item) for item in self.raw_json["tracks"]["items"]]
 
+    @property
+    def total_tracks(self) -> int:
+        """ Returns the total number of tracks on the album"""
+        return int(self.raw_json["total_tracks"])
+
+    @property
+    def available_markets(self) -> list:
+        """ Returns list of markets where track is available
+            Represented by ISO 3166-1 alpha-2 codes """
+        return self.raw_json["available_markets"]
+
+    @property
+    def release_date_precision(self) -> str:
+        """ Returns the precision to which the release date is known """
+        return self.raw_json["release_date_precision"]
+
+    @property
+    def popularity(self) -> int:
+        """ Returns the popularity score of the album, from 0-100 """
+        return int(self.raw_json["popularity"])
+
 
 class Artist(SpotifyObject):
     """ Spotify artist object """
@@ -100,6 +132,21 @@ class Artist(SpotifyObject):
     def name(self) -> str:
         """ Returns name of artist """
         return self.raw_json["name"]
+
+    @property
+    def total_followers(self) -> int:
+        """ Returns the number of followers the artist has """
+        return int(self.raw_json["followers"]["total"])
+
+    @property
+    def genres(self) -> list:
+        """ Returns a list of the genres the artist is associated with """
+        return self.raw_json["genres"]
+
+    @property
+    def popularity(self) -> int:
+        """ Returns the popularity score of the artist, from 0-100 """
+        return int(self.raw_json["popularity"])
 
 
 class SpotifyConnection:
@@ -156,8 +203,16 @@ class SpotifyConnection:
 if __name__ == "__main__":
     load_dotenv()
     connection = SpotifyConnection(os.getenv("CLIENT_ID"), os.getenv("CLIENT_SECRET"))
-    album_list = connection.get_albums(["1amYhlukNF8WdaQC3gKkgL"])
-    for track in album_list[0].tracks:
-        if track.explicit:
-            print("[E] ", end="")
-        print(f"{track.name} - by {', '.join(track.artists)} ({track.minutes}:{track.seconds:02})")
+
+    tracks = connection.get_search("first class jack harlow", ["track"], 1)
+
+
+
+    print(tracks[0].available_markets)
+
+
+    # album_list = connection.get_albums(["1amYhlukNF8WdaQC3gKkgL"])
+    # for track in album_list[0].tracks:
+    #     if track.explicit:
+    #         print("[E] ", end="")
+    #     print(f"{track.name} - by {', '.join(track.artists)} ({track.minutes}:{track.seconds:02})")
